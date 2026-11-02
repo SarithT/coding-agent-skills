@@ -1,0 +1,156 @@
+#!/usr/bin/env bash
+# Launch one `codex exec` run (fresh or resumed) for an agent that delegates work to Codex.
+# Run it in the background. stdout is Codex's final message followed by a status line;
+# the full event stream and Codex's stderr are appended to --log.
+#
+#   bash codex-dispatch --repo <dir> --model <model> --effort <effort> --prompt <file> --log <file>
+#                       [--resume <session-id>] [--read-only] [--add-dir <dir>]...
+#                       [--out <file>] [--timeout <minutes>]
+#
+# Default sandbox: workspace-write with network access, /tmp writable, approval requests routed
+# to Codex auto-review. Extra writable directories: --add-dir, or a colon-separated
+# CODEX_DISPATCH_ADD_DIRS. --read-only is for reviews that run nothing and write nothing.
+set -euo pipefail
+
+die() { echo "codex-dispatch: $*" >&2; exit 2; }
+need() { [ $# -ge 2 ] && [ -n "$2" ] || die "$1 needs a non-empty value"; }
+
+UUID_RE='^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+STARTUP_SECONDS=90
+
+repo= model= effort= prompt= log= resume= readonly= out= timeout_min=
+extra_dirs=()
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --repo) need "$@"; repo=$2; shift 2 ;;
+    --model) need "$@"; model=$2; shift 2 ;;
+    --effort) need "$@"; effort=$2; shift 2 ;;
+    --prompt) need "$@"; prompt=$2; shift 2 ;;
+    --log) need "$@"; log=$2; shift 2 ;;
+    --resume) need "$@"; resume=$2; shift 2 ;;
+    --add-dir) need "$@"; extra_dirs+=("$2"); shift 2 ;;
+    --out) need "$@"; out=$2; shift 2 ;;
+    --timeout) need "$@"; timeout_min=$2; shift 2 ;;
+    --read-only) readonly=1; shift ;;
+    *) die "unknown argument: $1" ;;
+  esac
+done
+
+[ -n "$repo" ] && [ -n "$model" ] && [ -n "$effort" ] && [ -n "$prompt" ] && [ -n "$log" ] \
+  || die "--repo, --model, --effort, --prompt and --log are required"
+[ -d "$repo" ] || die "repo not found: $repo"
+[ -f "$prompt" ] && [ -r "$prompt" ] || die "prompt is not a readable file: $prompt"
+grep -q '[^[:space:]]' "$prompt" || die "prompt file is empty: $prompt"
+[ ! -e "$log" ] || [ ! "$prompt" -ef "$log" ] || die "--prompt and --log are the same file"
+[ -z "$resume" ] || [[ "$resume" =~ $UUID_RE ]] || die "--resume needs a session id (UUID), got: $resume"
+[ -z "$timeout_min" ] || [[ "$timeout_min" =~ ^[1-9][0-9]*$ ]] || die "--timeout needs whole minutes, got: $timeout_min"
+command -v codex >/dev/null || die "codex CLI not found on PATH"
+
+if [ -n "${CODEX_DISPATCH_ADD_DIRS:-}" ]; then
+  IFS=: read -r -a env_dirs <<< "$CODEX_DISPATCH_ADD_DIRS"
+  if [ ${#env_dirs[@]} -gt 0 ]; then
+    for d in "${env_dirs[@]}"; do [ -z "$d" ] || extra_dirs+=("$d"); done
+  fi
+fi
+
+if [ -n "$readonly" ]; then
+  [ -z "$resume" ] || die "--read-only sessions are never resumed"
+  [ ${#extra_dirs[@]} -eq 0 ] || die "--add-dir and CODEX_DISPATCH_ADD_DIRS can't be used with --read-only"
+elif [ ${#extra_dirs[@]} -gt 0 ]; then
+  for d in "${extra_dirs[@]}"; do [ -d "$d" ] || die "--add-dir is not a directory: $d"; done
+fi
+
+umask 077  # the log holds the whole transcript
+mkdir -p "$(dirname "$log")"
+events=$(mktemp "${TMPDIR:-/tmp}/codex-dispatch.events.XXXXXX")
+last=${out:-$(mktemp "${TMPDIR:-/tmp}/codex-dispatch.last.XXXXXX")}
+[ -z "$out" ] || { mkdir -p "$(dirname "$out")"; : > "$out"; }
+
+flags=(--cd "$repo" --model "$model" -c "model_reasoning_effort=$effort"
+       --json --color never --output-last-message "$last")
+[ -e "$repo/.git" ] || flags+=(--skip-git-repo-check)
+if [ -n "$readonly" ]; then
+  flags+=(--sandbox read-only)
+else
+  flags+=(--approve-for-me -c sandbox_workspace_write.network_access=true --add-dir /tmp)
+  if [ ${#extra_dirs[@]} -gt 0 ]; then
+    for d in "${extra_dirs[@]}"; do flags+=(--add-dir "$d"); done
+  fi
+fi
+
+echo "=== codex-dispatch $(date '+%F %T') model=$model effort=$effort resume=${resume:-no} prompt=$prompt" >> "$log"
+
+# Job control puts Codex in its own process group, so cleanup can stop the commands it started too.
+# The prompt goes in on stdin (`-`), so its size and content can't be mistaken for CLI arguments.
+set -m
+if [ -n "$resume" ]; then
+  codex exec "${flags[@]}" resume "$resume" - < "$prompt" > "$events" 2>> "$log" &
+else
+  codex exec "${flags[@]}" - < "$prompt" > "$events" 2>> "$log" &
+fi
+pid=$!
+set +m
+
+finish() {  # append this run's events to the log and drop temp files
+  cat "$events" >> "$log" 2>/dev/null || true
+  rm -f "$events"
+  [ -n "$out" ] || rm -f "$last"
+}
+
+stop_codex() {  # TERM the whole process group, then KILL whatever is left after 10 s
+  kill -0 "$pid" 2>/dev/null || return 0
+  kill -TERM -- "-$pid" 2>/dev/null || kill -TERM "$pid" 2>/dev/null || true
+  for _ in 1 2 3 4 5 6 7 8 9 10; do
+    kill -0 "$pid" 2>/dev/null || break
+    sleep 1
+  done
+  kill -KILL -- "-$pid" 2>/dev/null || kill -KILL "$pid" 2>/dev/null || true
+  wait "$pid" 2>/dev/null || true
+}
+
+abort() {  # $1 = exit code, $2 = message
+  stop_codex
+  finish
+  echo "codex-dispatch: $2" >&2
+  echo "codex-dispatch: session ${session:-unknown} exit $1"
+  exit "$1"
+}
+session=
+trap 'abort 130 "interrupted; stopped codex"' INT
+trap 'abort 143 "terminated; stopped codex"' TERM
+trap 'abort 129 "hung up; stopped codex"' HUP
+
+# A healthy run reports its thread id within seconds. A resumed run must report the requested one.
+for _ in $(seq 1 "$STARTUP_SECONDS"); do
+  session=$(grep -m1 -o '"type":"thread.started","thread_id":"[^"]*"' "$events" 2>/dev/null \
+    | sed 's/.*"thread_id":"\([^"]*\)"/\1/' || true)
+  [ -n "$session" ] && break
+  kill -0 "$pid" 2>/dev/null || break
+  sleep 1
+done
+if [ -z "$session" ] && kill -0 "$pid" 2>/dev/null; then
+  abort 124 "no session id after ${STARTUP_SECONDS}s; stopped codex (see $log)"
+fi
+if [ -n "$session" ] && [ -n "$resume" ] && [ "$session" != "$resume" ]; then
+  abort 2 "asked to resume $resume but codex started $session; stopped it"
+fi
+
+if [ -n "$timeout_min" ]; then
+  deadline=$(( $(date +%s) + timeout_min * 60 ))
+  while kill -0 "$pid" 2>/dev/null; do
+    [ "$(date +%s)" -lt "$deadline" ] || abort 124 "no result after $timeout_min min; stopped codex (see $log)"
+    sleep 5
+  done
+fi
+
+status=0
+wait "$pid" || status=$?
+trap - INT TERM HUP
+if [ -s "$last" ]; then
+  cat "$last"
+  [ -z "$(tail -c 1 "$last")" ] || echo  # keep the status line on its own line
+fi
+finish
+[ -n "$session" ] || { echo "codex-dispatch: codex exited without a session id (see $log)" >&2; [ "$status" -ne 0 ] || status=1; }
+echo "codex-dispatch: session ${session:-unknown} exit $status"
+exit "$status"

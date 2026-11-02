@@ -1,0 +1,51 @@
+{
+  "sources": {
+    "anthropics-skills": {
+      "repo": "anthropics/skills",
+      "ref": "main",
+      "sha": "ca45fc496a3436251f191354091d557da31c15b5",
+      "skills": {
+        "frontend-design": "skills/frontend-design",
+        "skill-creator": "skills/skill-creator"
+      }
+    },
+    "superpowers": {
+      "repo": "obra/superpowers",
+      "ref": "main",
+      "sha": "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b",
+      "skills": {
+        "brainstorming": "skills/brainstorming",
+        "diagnosing-superpowers": "skills/diagnosing-superpowers",
+        "dispatching-parallel-agents": "skills/dispatching-parallel-agents",
+        "executing-plans": "skills/executing-plans",
+        "finishing-a-development-branch": "skills/finishing-a-development-branch",
+        "receiving-code-review": "skills/receiving-code-review",
+        "requesting-code-review": "skills/requesting-code-review",
+        "subagent-driven-development": "skills/subagent-driven-development",
+        "systematic-debugging": "skills/systematic-debugging",
+        "test-driven-development": "skills/test-driven-development",
+        "using-git-worktrees": "skills/using-git-worktrees",
+        "using-superpowers": "skills/using-superpowers",
+        "verification-before-completion": "skills/verification-before-completion",
+        "writing-plans": "skills/writing-plans",
+        "writing-skills": "skills/writing-skills"
+      }
+    },
+    "astral": {
+      "repo": "astral-sh/claude-code-plugins",
+      "ref": "main",
+      "sha": "f3ce88a7ba830f53afd6d944c1d0278ed318e142",
+      "skills": {
+        "uv": "plugins/astral/skills/uv"
+      }
+    },
+    "addyosmani-agent-skills": {
+      "repo": "addyosmani/agent-skills",
+      "ref": "main",
+      "sha": "301b02b12bff98e4688e6984af6556802322bbde",
+      "skills": {
+        "code-simplification": "skills/code-simplification"
+      }
+    }
+  }
+}

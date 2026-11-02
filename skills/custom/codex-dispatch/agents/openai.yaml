@@ -1,0 +1,4 @@
+# Read by Codex only. This skill tells other agents how to launch Codex, so Codex itself
+# should never load it on its own. It stays invokable explicitly as $codex-dispatch.
+policy:
+  allow_implicit_invocation: false

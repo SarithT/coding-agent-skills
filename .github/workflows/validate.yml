@@ -1,0 +1,40 @@
+name: Validate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24
+
+      - name: Install pinned tooling (skills CLI, yaml)
+        run: npm ci --ignore-scripts
+
+      - name: Lint skills and check the skills CLI discovers exactly these
+        run: node scripts/validate.mjs --cli
+
+      - name: skills/vendor matches the pins in vendor.lock.json
+        run: |
+          node scripts/sync-vendor.mjs
+          # --ignored also catches vendored files a .gitignore would keep out of commits
+          changes="$(git status --porcelain --ignored -- skills/vendor vendor.lock.json THIRD_PARTY.md)"
+          if [ -n "$changes" ]; then
+            echo "::error::skills/vendor, vendor.lock.json or THIRD_PARTY.md differ from what vendor.json + vendor.lock.json produce."
+            echo "Vendored files must not be edited by hand. Run 'npm run sync' and commit the result."
+            echo "$changes"
+            exit 1
+          fi

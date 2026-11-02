@@ -1,0 +1,63 @@
+name: Sync vendored skills
+
+on:
+  schedule:
+    - cron: '17 5 * * *' # daily, 05:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: sync-vendor
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      # Always sync against the default branch, even when dispatched from another branch.
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24
+
+      - name: Install pinned tooling (skills CLI, yaml)
+        run: npm ci --ignore-scripts
+
+      - name: Move pins to latest upstream commits
+        run: node scripts/sync-vendor.mjs --update --summary "$RUNNER_TEMP/pr-body.md"
+
+      - name: Validate
+        run: |
+          node scripts/validate.mjs --cli
+          ignored="$(git status --porcelain --ignored -- skills/vendor | grep '^!!' || true)"
+          if [ -n "$ignored" ]; then
+            echo "::error::Upstream files are git-ignored and would be missing from the PR:"
+            echo "$ignored"
+            exit 1
+          fi
+
+      # Opens one PR on a fixed branch and keeps updating it until merged.
+      # Never commits to main directly: upstream changes get reviewed first.
+      - uses: peter-evans/create-pull-request@22a9089034f40e5a961c8808d113e2c98fb63676 # v7.0.11
+        with:
+          # PRs opened with the default GITHUB_TOKEN don't trigger other workflows (so
+          # validate.yml won't run on them). Set a SKILLS_SYNC_TOKEN secret (fine-grained PAT
+          # with contents + pull-requests write) to get checks on the PR.
+          token: ${{ secrets.SKILLS_SYNC_TOKEN || github.token }}
+          base: ${{ github.event.repository.default_branch }}
+          branch: chore/vendor-sync
+          delete-branch: true
+          commit-message: 'chore(vendor): sync third-party skills'
+          title: 'chore(vendor): sync third-party skills'
+          body-path: ${{ runner.temp }}/pr-body.md
+          add-paths: |
+            skills/vendor
+            vendor.lock.json
+            THIRD_PARTY.md

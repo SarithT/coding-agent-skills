@@ -1,0 +1,33 @@
+{
+  "$comment": "Third-party skills to vendor into skills/vendor/. Edit this file, then run `npm run sync`. Pinned commits live in vendor.lock.json (generated).",
+  "sources": [
+    {
+      "id": "anthropics-skills",
+      "repo": "anthropics/skills",
+      "ref": "main",
+      "license": "Apache-2.0",
+      "include": ["skills/frontend-design", "skills/skill-creator"]
+    },
+    {
+      "id": "superpowers",
+      "repo": "obra/superpowers",
+      "ref": "main",
+      "license": "MIT",
+      "include": ["skills/*"]
+    },
+    {
+      "id": "astral",
+      "repo": "astral-sh/claude-code-plugins",
+      "ref": "main",
+      "license": "MIT OR Apache-2.0",
+      "include": ["plugins/astral/skills/uv"]
+    },
+    {
+      "id": "addyosmani-agent-skills",
+      "repo": "addyosmani/agent-skills",
+      "ref": "main",
+      "license": "MIT",
+      "include": ["skills/code-simplification"]
+    }
+  ]
+}
