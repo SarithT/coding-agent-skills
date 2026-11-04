@@ -1,6 +1,6 @@
 ---
 name: codex-dispatch
-description: Use when an agent other than Codex hands work to OpenAI Codex, such as delegating an implementation task, a fix round or a code review, resuming a Codex session, or running `codex exec`. Not for use inside Codex itself.
+description: If you are Codex, do not load this skill. Use when an agent other than Codex hands work to OpenAI Codex, such as delegating an implementation task, a fix round or a code review, resuming a Codex session, or running `codex exec`.
 ---
 
 # Codex Dispatch

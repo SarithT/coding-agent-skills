@@ -1,7 +1,6 @@
 ---
 name: claude-dispatch
-description: Use when an agent other than Claude Code hands work to Claude Code (Anthropic's `claude` CLI), such as delegating an implementation task, a fix round or a code review, resuming a Claude session, or running `claude -p`. Not for use inside Claude Code itself.
-disable-model-invocation: true
+description: If you are Claude Code, do not load this skill. Use when an agent other than Claude Code hands work to Claude Code (Anthropic's `claude` CLI), such as delegating an implementation task, a fix round or a code review, resuming a Claude session, or running `claude -p`.
 ---
 
 # Claude Dispatch

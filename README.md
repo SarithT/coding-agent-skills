@@ -19,54 +19,28 @@ npx skills check     # exits 1 when updates are available
 npx skills update
 ```
 
-### Skills for one harness only
+### Skills that skip one harness
 
-`codex-dispatch` tells other agents how to launch Codex, so Codex itself should never load
-it. A global install puts skills in `~/.agents/skills`, which Codex scans, and links other
-agents to that folder. Three layers keep this skill out of Codex:
+`codex-dispatch` tells an agent how to launch Codex, and `claude-dispatch` how to launch
+Claude Code. Install them like any other skill, for every agent. Each description starts by
+telling the agent it launches to skip it ("If you are Codex, do not load this skill."), so
+that agent leaves it alone even when it's installed.
 
-1. **Install it by copying, only for the agents that use it.** It then never lands in
-   `~/.agents/skills`:
+If you'd rather hide one completely from the harness it targets:
 
-   ```bash
-   npx skills add SarithT/coding-agent-skills --skill codex-dispatch -g -a claude-code --copy
-   ```
+- Codex, in `~/.codex/config.toml`:
 
-   OpenCode reads `~/.claude/skills` too, so this covers both. Don't add `-a opencode`: the
-   CLI links that install to `~/.agents/skills`. This doesn't remove an earlier copy. If
-   `~/.agents/skills/codex-dispatch` already exists, from an earlier install or from
-   installing everything, delete it. Keep it global: a project-level install goes to
-   `.agents/skills` or `.claude/skills`, and Codex reads `.agents/skills`.
-2. **Its `agents/openai.yaml` sets `allow_implicit_invocation: false`.** Codex leaves the
-   skill out of its context even when it sits in a folder Codex scans. You can still call
-   it on purpose as `$codex-dispatch`.
-3. **To block it completely in Codex,** add this to `~/.codex/config.toml`:
+  ```toml
+  [[skills.config]]
+  name = "codex-dispatch"
+  enabled = false
+  ```
 
-   ```toml
-   [[skills.config]]
-   name = "codex-dispatch"
-   enabled = false
-   ```
+- Claude Code, in `~/.claude/settings.json`:
 
-`claude-dispatch` is the reverse: it tells other agents how to launch Claude Code, so Claude
-Code should never load it.
-
-1. **Install it only for the agents that use it:**
-
-   ```bash
-   npx skills add SarithT/coding-agent-skills --skill claude-dispatch -g -a codex
-   ```
-
-   This puts it in `~/.agents/skills`, which Codex and OpenCode read and Claude Code doesn't.
-   Never install it for `claude-code`: anything in `~/.claude/skills` reaches Claude Code.
-2. **Its frontmatter sets `disable-model-invocation: true`.** Claude Code leaves the skill out
-   of the model's context even if it lands in `~/.claude/skills`. You can still run it as
-   `/claude-dispatch`. Codex and OpenCode ignore this field.
-3. **To block it completely in Claude Code,** add a deny rule to `~/.claude/settings.json`:
-
-   ```json
-   { "permissions": { "deny": ["Skill(claude-dispatch)"] } }
-   ```
+  ```json
+  { "permissions": { "deny": ["Skill(claude-dispatch)"] } }
+  ```
 
 ## Layout
 
