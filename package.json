@@ -12,7 +12,7 @@
     "validate": "node scripts/validate.mjs --cli"
   },
   "devDependencies": {
-    "skills": "1.7.4",
+    "skills": "1.7.6",
     "yaml": "^2.8.3"
   }
 }
