@@ -3,7 +3,7 @@
     "anthropics-skills": {
       "repo": "anthropics/skills",
       "ref": "main",
-      "sha": "ca45fc496a3436251f191354091d557da31c15b5",
+      "sha": "2c5958ecac7cee2b583967a2c4981d0f4a75c579",
       "skills": {
         "frontend-design": "skills/frontend-design",
         "skill-creator": "skills/skill-creator"
@@ -12,7 +12,7 @@
     "superpowers": {
       "repo": "obra/superpowers",
       "ref": "main",
-      "sha": "2ce8aa15d05bd57213e6f746f953aafb7ded7a8b",
+      "sha": "22f0b463e7a5e579904dd6211a520321035526f7",
       "skills": {
         "brainstorming": "skills/brainstorming",
         "diagnosing-superpowers": "skills/diagnosing-superpowers",
@@ -34,7 +34,7 @@
     "astral": {
       "repo": "astral-sh/claude-code-plugins",
       "ref": "main",
-      "sha": "f3ce88a7ba830f53afd6d944c1d0278ed318e142",
+      "sha": "855418fb9ebfada49a8345a5c3ada9db2cdc2419",
       "skills": {
         "uv": "plugins/astral/skills/uv"
       }
@@ -42,7 +42,7 @@
     "addyosmani-agent-skills": {
       "repo": "addyosmani/agent-skills",
       "ref": "main",
-      "sha": "301b02b12bff98e4688e6984af6556802322bbde",
+      "sha": "39b723ceebf81474d0557c1fecd01eddab585563",
       "skills": {
         "code-simplification": "skills/code-simplification"
       }
