@@ -46,6 +46,22 @@
       "skills": {
         "code-simplification": "skills/code-simplification"
       }
+    },
+    "context7": {
+      "repo": "upstash/context7",
+      "ref": "master",
+      "sha": "76d68b5d2b19eb0f5d96c3e44c12c710f6a7a5ab",
+      "skills": {
+        "context7-cli": "skills/context7-cli"
+      }
+    },
+    "googlechrome-modern-web-guidance": {
+      "repo": "GoogleChrome/modern-web-guidance",
+      "ref": "main",
+      "sha": "64a6d708f5a43f2cd3fde5d4d7db3905ba1bdf65",
+      "skills": {
+        "modern-web-guidance": "skills/modern-web-guidance"
+      }
     }
   }
 }

@@ -24,3 +24,5 @@ Each skill in `skills/vendor/` keeps its upstream license file.
 | `writing-skills` | [obra/superpowers](https://github.com/obra/superpowers/tree/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b/skills/writing-skills) | `2ce8aa1` | MIT |
 | `uv` | [astral-sh/claude-code-plugins](https://github.com/astral-sh/claude-code-plugins/tree/f3ce88a7ba830f53afd6d944c1d0278ed318e142/plugins/astral/skills/uv) | `f3ce88a` | MIT OR Apache-2.0 |
 | `code-simplification` | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/301b02b12bff98e4688e6984af6556802322bbde/skills/code-simplification) | `301b02b` | MIT |
+| `context7-cli` | [upstash/context7](https://github.com/upstash/context7/tree/76d68b5d2b19eb0f5d96c3e44c12c710f6a7a5ab/skills/context7-cli) | `76d68b5` | MIT |
+| `modern-web-guidance` | [GoogleChrome/modern-web-guidance](https://github.com/GoogleChrome/modern-web-guidance/tree/64a6d708f5a43f2cd3fde5d4d7db3905ba1bdf65/skills/modern-web-guidance) | `64a6d70` | Apache-2.0 |

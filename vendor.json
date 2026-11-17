@@ -28,6 +28,20 @@
       "ref": "main",
       "license": "MIT",
       "include": ["skills/code-simplification"]
+    },
+    {
+      "id": "context7",
+      "repo": "upstash/context7",
+      "ref": "master",
+      "license": "MIT",
+      "include": ["skills/context7-cli"]
+    },
+    {
+      "id": "googlechrome-modern-web-guidance",
+      "repo": "GoogleChrome/modern-web-guidance",
+      "ref": "main",
+      "license": "Apache-2.0",
+      "include": ["skills/modern-web-guidance"]
     }
   ]
 }
