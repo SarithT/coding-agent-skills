@@ -23,6 +23,6 @@ Each skill in `skills/vendor/` keeps its upstream license file.
 | `writing-plans` | [obra/superpowers](https://github.com/obra/superpowers/tree/22f0b463e7a5e579904dd6211a520321035526f7/skills/writing-plans) | `22f0b46` | MIT |
 | `writing-skills` | [obra/superpowers](https://github.com/obra/superpowers/tree/22f0b463e7a5e579904dd6211a520321035526f7/skills/writing-skills) | `22f0b46` | MIT |
 | `uv` | [astral-sh/claude-code-plugins](https://github.com/astral-sh/claude-code-plugins/tree/855418fb9ebfada49a8345a5c3ada9db2cdc2419/plugins/astral/skills/uv) | `855418f` | MIT OR Apache-2.0 |
-| `code-simplification` | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/39b723ceebf81474d0557c1fecd01eddab585563/skills/code-simplification) | `39b723c` | MIT |
-| `context7-cli` | [upstash/context7](https://github.com/upstash/context7/tree/c36522f3d4446288a272aedd727d665f7b8175f2/skills/context7-cli) | `c36522f` | MIT |
+| `code-simplification` | [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills/tree/8c99fa36d90068c82d547f7c12a9d67a3e95f4ee/skills/code-simplification) | `8c99fa3` | MIT |
+| `context7-cli` | [upstash/context7](https://github.com/upstash/context7/tree/b1e3611e32a8b1369ae526cacdf335ddfd6e5fbb/skills/context7-cli) | `b1e3611` | MIT |
 | `modern-web-guidance` | [GoogleChrome/modern-web-guidance](https://github.com/GoogleChrome/modern-web-guidance/tree/64a6d708f5a43f2cd3fde5d4d7db3905ba1bdf65/skills/modern-web-guidance) | `64a6d70` | Apache-2.0 |
