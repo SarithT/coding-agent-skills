@@ -10,6 +10,7 @@
 # Default sandbox: workspace-write with network access, /tmp writable, approval requests routed
 # to Codex auto-review. Extra writable directories: --add-dir, or a colon-separated
 # CODEX_DISPATCH_ADD_DIRS. --read-only is for reviews that run nothing and write nothing.
+# CODEX_DISPATCH_SERVICE_TIER (e.g. fast) sets Codex's service_tier for the run.
 set -euo pipefail
 
 die() { echo "codex-dispatch: $*" >&2; exit 2; }
@@ -69,6 +70,7 @@ last=${out:-$(mktemp "${TMPDIR:-/tmp}/codex-dispatch.last.XXXXXX")}
 flags=(--cd "$repo" --model "$model" -c "model_reasoning_effort=$effort"
        --json --color never --output-last-message "$last")
 [ -e "$repo/.git" ] || flags+=(--skip-git-repo-check)
+[ -z "${CODEX_DISPATCH_SERVICE_TIER:-}" ] || flags+=(-c "service_tier=$CODEX_DISPATCH_SERVICE_TIER")
 if [ -n "$readonly" ]; then
   flags+=(--sandbox read-only)
 else
@@ -78,7 +80,7 @@ else
   fi
 fi
 
-echo "=== codex-dispatch $(date '+%F %T') model=$model effort=$effort resume=${resume:-no} prompt=$prompt" >> "$log"
+echo "=== codex-dispatch $(date '+%F %T') model=$model effort=$effort tier=${CODEX_DISPATCH_SERVICE_TIER:-config} resume=${resume:-no} prompt=$prompt" >> "$log"
 
 # Job control puts Codex in its own process group, so cleanup can stop the commands it started too.
 # The prompt goes in on stdin (`-`), so its size and content can't be mistaken for CLI arguments.

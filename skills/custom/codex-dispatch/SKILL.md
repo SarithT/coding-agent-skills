@@ -30,6 +30,10 @@ bash <this skill's directory>/scripts/codex-dispatch \
   so length and leading dashes don't matter. Inside the prompt, pass paths to
   plans, briefs, diffs and report files instead of pasting their contents.
 - **Use one log file per task.**
+- **Service tier:** `CODEX_DISPATCH_SERVICE_TIER=<tier>` (e.g. `fast`) passes
+  `-c service_tier=<tier>` to the run; unset, Codex's config decides. Use it
+  only when the project's instructions ask for it. Codex warns in the log and
+  drops a tier the model doesn't advertise.
 
 **Output.** stdout is Codex's final message, followed by
 `codex-dispatch: session <id> exit <code>`. `--out` also saves the final message
