@@ -42,7 +42,7 @@
     "addyosmani-agent-skills": {
       "repo": "addyosmani/agent-skills",
       "ref": "main",
-      "sha": "8c99fa36d90068c82d547f7c12a9d67a3e95f4ee",
+      "sha": "e997ac5b9a74eab332d5e9793bb38a38c8cfdd74",
       "skills": {
         "code-simplification": "skills/code-simplification"
       }
@@ -50,7 +50,7 @@
     "context7": {
       "repo": "upstash/context7",
       "ref": "master",
-      "sha": "11cb18d81c93bffe6c9c662ec7cb605f34ea6946",
+      "sha": "4c98769fea0403bf5f22865320b0783e8cae1fd5",
       "skills": {
         "context7-cli": "skills/context7-cli"
       }
