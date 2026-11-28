@@ -50,7 +50,7 @@
     "context7": {
       "repo": "upstash/context7",
       "ref": "master",
-      "sha": "4c98769fea0403bf5f22865320b0783e8cae1fd5",
+      "sha": "e8d84b8ebcc82866703f7ea86a61c7261dbc07d4",
       "skills": {
         "context7-cli": "skills/context7-cli"
       }
